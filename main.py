@@ -1,10 +1,17 @@
 
-
+import os
+import requests
+from dotenv import load_dotenv
 import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 
-WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLxww5g9coLp42LZxVQ3qvMYv-e7bCb_ve4erdMP16B9nMYYYRQhDB3mpAJSWCmTY/exec"
+# 🔹 Load biến môi trường từ file .env
+load_dotenv()
+
+# 🔹 Lấy giá trị từ file .env
+TOKEN = os.getenv("TOKEN")
+WEB_APP_URL = os.getenv("WEB_APP_URL")
 
 async def nhap_kho(update: Update, context: CallbackContext):
     if not context.args:
@@ -80,7 +87,6 @@ async def xuat_kho(update: Update, context: CallbackContext):
 
 
 def main():
-    TOKEN = "7572766270:AAGlFhr0CRXkPvEiHYTNejapWwnamrWRpAs"
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("nhapkho", nhap_kho))  # Không cần dấu ngoặc tròn
     application.add_handler(CommandHandler("xuatkho", xuat_kho))  # Không cần dấu ngoặc tròn
