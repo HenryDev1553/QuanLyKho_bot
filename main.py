@@ -85,12 +85,79 @@ async def xuat_kho(update: Update, context: CallbackContext):
     except Exception as e:
         await update.message.reply_text(f"❌ Lỗi xử lý xuất kho: {str(e)}")
 
+async def che_bien(update: Update, context: CallbackContext):
+    if not context.args:
+        await update.message.reply_text("⚠️ Sai định dạng! Nhập: /chebien Tên nguyên liệu - Dung tích có được")
+        return
+
+    message_text = " ".join(context.args).strip()
+    username = update.message.from_user.full_name
+
+    parts = [p.strip() for p in message_text.split("-")]
+    if len(parts) != 2:
+        await update.message.reply_text("⚠️ Sai định dạng! Nhập: /chebien Tên nguyên liệu - Dung tích có được")
+        return
+
+    try:
+        ten_nguyen_lieu, dung_tich = parts
+        data = {
+            "action": "chebien",
+            "ten_nguyen_lieu": ten_nguyen_lieu,
+            "dung_tich": dung_tich,
+            "nguoi_che_bien": username
+        }
+
+        response = requests.post(WEB_APP_URL, json=data)
+        json_data = response.json()
+        if json_data.get("status") == "success":
+            await update.message.reply_text(f"✅ Đã chế biến: {ten_nguyen_lieu} - {dung_tich}")
+        else:
+            await update.message.reply_text(f"⚠️ Lỗi từ server: {json_data.get('message', 'Không rõ nguyên nhân')}")
+    except ValueError:
+        await update.message.reply_text("⚠️ Lỗi: Số lượng xuất phải là số nguyên.")
+    except Exception as e:
+        await update.message.reply_text(f"❌ Lỗi xử lý xuất kho: {str(e)}")
+
+async def huy_nguyen_lieu(update: Update, context: CallbackContext):
+    if not context.args:
+        await update.message.reply_text("⚠️ Sai định dạng! Nhập: /huynguyenlieu Tên nguyên liệu - Số lượng/trọng lượng - lý do huỷ")
+        return
+
+    message_text = " ".join(context.args).strip()
+    username = update.message.from_user.full_name
+
+    parts = [p.strip() for p in message_text.split("-")]
+    if len(parts) != 3:
+        await update.message.reply_text("⚠️ Sai định dạng! Nhập: /huynguyenlieu Tên nguyên liệu - Số lượng/trọng lượng - lý do huỷ")
+        return
+
+    try:
+        ten_nguyen_lieu, so_luong_huy, ly_do = parts
+        data = {
+            "action": "huynguyenlieu",
+            "ten_nguyen_lieu": ten_nguyen_lieu,
+            "so_luong_huy": so_luong_huy,
+            "ly_do": ly_do,
+            "nguoi_huy": username
+        }
+
+        response = requests.post(WEB_APP_URL, json=data)
+        json_data = response.json()
+        if json_data.get("status") == "success":
+            await update.message.reply_text(f"✅ Đã huỷ nguyên liệu: {ten_nguyen_lieu} - {so_luong_huy} - {ly_do}")
+        else:
+            await update.message.reply_text(f"⚠️ Lỗi từ server: {json_data.get('message', 'Không rõ nguyên nhân')}")
+    except ValueError:
+        await update.message.reply_text("⚠️ Lỗi: Số lượng xuất phải là số nguyên.")
+    except Exception as e:
+        await update.message.reply_text(f"❌ Lỗi xử lý xuất kho: {str(e)}")
 
 def main():
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("nhapkho", nhap_kho))  # Không cần dấu ngoặc tròn
     application.add_handler(CommandHandler("xuatkho", xuat_kho))  # Không cần dấu ngoặc tròn
-
+    application.add_handler(CommandHandler("chebien", che_bien))  # Không cần dấu ngoặc tròn
+    application.add_handler(CommandHandler("huynguyenlieu", huy_nguyen_lieu))  # Không cần dấu ngoặc tròn
     application.run_polling()
 
 
